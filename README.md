@@ -17,17 +17,6 @@ Why this project
 - Reproducible ingestion and indexing pipeline for documentation.
 - Extensible retrieval and LLM integration.
 
-Table of contents
-
-- [Quick start](#quick-start)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Tech stack](#tech-stack)
-- [Tradeoffs & design considerations](#tradeoffs--design-considerations)
-- [Development & testing](#development--testing)
-- [Contributing](#contributing)
-- [License & contact](#license--contact)
-
 Quick start
 
 Prerequisites
@@ -69,96 +58,101 @@ Features
 - LLM-backed generation: source-grounded answers with prompt-building utilities.
 - API + UI: programmatic endpoints and a Streamlit demo for quick testing.
 
-Architecture
+Architecture (block view)
 
-The system is organized into clear layers:
-
-- Ingestion: `crawler/`, `ingestion/` — load and prepare text, chunk documents.
-- Indexing: `ingestion/embedder.py` + `vectordb/qdrant_manager.py` — create and persist embeddings.
-- Retrieval: `retrieval/` — search strategies (BM25, dense, hybrid) and rerankers.
-- Generation: `llm/` — prompt builders and LLM client wrappers.
-- Interfaces: `api/` (FastAPI) and `ui/` (Streamlit) for users and integrations.
+<div style="display:flex;flex-wrap:wrap;gap:12px;">
+  <div style="flex:1 1 320px;border:1px solid #e6eef8;background:#f7fbff;padding:14px;border-radius:6px;">
+    <strong>Ingestion</strong>
+    <p style="margin:6px 0 0">`crawler/`, `ingestion/` — load, normalize, and chunk documents; extract metadata.</p>
+  </div>
+  <div style="flex:1 1 320px;border:1px solid #e6f7ec;background:#f7fff6;padding:14px;border-radius:6px;">
+    <strong>Indexing</strong>
+    <p style="margin:6px 0 0">`ingestion/embedder.py` + `vectordb/qdrant_manager.py` — create embeddings and persist to vector DB.</p>
+  </div>
+  <div style="flex:1 1 320px;border:1px solid #fff4e6;background:#fffbf2;padding:14px;border-radius:6px;">
+    <strong>Retrieval</strong>
+    <p style="margin:6px 0 0">`retrieval/` — BM25, dense, hybrid search strategies and rerankers for multi-stage selection.</p>
+  </div>
+  <div style="flex:1 1 320px;border:1px solid #f3e6ff;background:#fbf7ff;padding:14px;border-radius:6px;">
+    <strong>Generation</strong>
+    <p style="margin:6px 0 0">`llm/` — prompt builders and provider wrappers that compose grounded generation responses.</p>
+  </div>
+  <div style="flex:1 1 320px;border:1px solid #e6f2ff;background:#f7fdff;padding:14px;border-radius:6px;">
+    <strong>Interfaces</strong>
+    <p style="margin:6px 0 0">`api/` (FastAPI) and `ui/` (Streamlit) — programmatic and interactive access layers.</p>
+  </div>
+</div>
 
 Tech stack
 
-- Language: Python 3.10+
-- API: FastAPI + Uvicorn
-- UI: Streamlit
-- Vector DB: Qdrant (pluggable)
-- Retrieval techniques: BM25, dense embeddings, hybrid approaches
-- Embeddings: provider-agnostic (configurable)
-- Testing: pytest
-- Dev tools: Docker / docker-compose, formatters (black), linters (ruff)
+<table style="border-collapse:collapse;width:100%;font-family:Helvetica,Arial,sans-serif;margin-top:12px">
+  <thead>
+    <tr>
+      <th style="text-align:left;padding:10px;background:#2b7cff;color:#fff;border:1px solid #dfefff">Component</th>
+      <th style="text-align:left;padding:10px;background:#2b7cff;color:#fff;border:1px solid #dfefff">Technology</th>
+      <th style="text-align:left;padding:10px;background:#2b7cff;color:#fff;border:1px solid #dfefff">Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding:10px;border:1px solid #eee">Language</td>
+      <td style="padding:10px;border:1px solid #eee">Python 3.10+</td>
+      <td style="padding:10px;border:1px solid #eee">Main implementation language</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;border:1px solid #eee">API</td>
+      <td style="padding:10px;border:1px solid #eee">FastAPI + Uvicorn</td>
+      <td style="padding:10px;border:1px solid #eee">ASGI server for programmatic access</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;border:1px solid #eee">UI</td>
+      <td style="padding:10px;border:1px solid #eee">Streamlit</td>
+      <td style="padding:10px;border:1px solid #eee">Lightweight interactive demo app</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;border:1px solid #eee">Vector DB</td>
+      <td style="padding:10px;border:1px solid #eee">Qdrant (pluggable)</td>
+      <td style="padding:10px;border:1px solid #eee">ANN store for embeddings; design is pluggable</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;border:1px solid #eee">Retrieval</td>
+      <td style="padding:10px;border:1px solid #eee">BM25, dense, hybrid</td>
+      <td style="padding:10px;border:1px solid #eee">Multiple strategies supported</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;border:1px solid #eee">Embeddings</td>
+      <td style="padding:10px;border:1px solid #eee">Provider-agnostic</td>
+      <td style="padding:10px;border:1px solid #eee">Swap models/providers as needed</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;border:1px solid #eee">Testing & tooling</td>
+      <td style="padding:10px;border:1px solid #eee">pytest, black, ruff, Docker</td>
+      <td style="padding:10px;border:1px solid #eee">Standard Python tooling</td>
+    </tr>
+  </tbody>
+</table>
 
-Tradeoffs & design considerations
+Tradeoffs (highlights)
 
-- Retrieval vs. Generation
-  - RAG yields grounded answers but needs good index coverage and retrieval tuning. Pure generation is simpler but risks hallucination. The repo uses retrieval-first patterns to prioritize source grounding.
-
-- Vector DB (Qdrant) vs. managed services
-  - Qdrant is great for local dev and reproducibility. Managed services (Pinecone, Weaviate) reduce ops overhead and scale better but cost more.
-
-- Embedding model quality vs. cost & latency
-  - Higher-quality embeddings improve recall and ranking at increased cost. The system is model-agnostic so operators can choose a tradeoff appropriate to budget and SLAs.
-
-- Freshness vs. indexing complexity
-  - Real-time indexing requires watchers and more infra; batch indexing is cheaper but introduces staleness. The repo provides change detection primitives to make updates incremental.
-
-- Hybrid retrieval complexity
-  - Combining BM25 and dense retrieval improves results but increases tuning surface; hybrid is optional with simple fallbacks.
-
-- Privacy
-  - Ingested content may include secrets. Sanitize or redact sensitive data before ingestion and store credentials in environment variables or secret managers.
-
-
-Development & testing
-
-Run tests
-
-```bash
-pytest -q
-```
-
-Lint & format
-
-```bash
-black .
-ruff check .
-```
+<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+  <div style="border-left:4px solid #ff9900;background:#fff8ec;padding:12px;border-radius:4px;">
+    <strong>Retrieval vs. Generation</strong>
+    <p style="margin:6px 0 0">RAG gives grounded answers but requires a complete index and careful retrieval tuning. Pure generation is simpler but risks hallucination. This repo prioritizes retrieval-first patterns to favor source grounding.</p>
+  </div>
+  <div style="border-left:4px solid #2b7cff;background:#eef7ff;padding:12px;border-radius:4px;">
+    <strong>Vector DB choice</strong>
+    <p style="margin:6px 0 0">Qdrant is chosen for local development and reproducibility. Managed offerings (for example Pinecone or Weaviate) reduce operational burden and scale better, at cost.</p>
+  </div>
+  <div style="border-left:4px solid #7bd389;background:#f5fff6;padding:12px;border-radius:4px;">
+    <strong>Embeddings: quality vs. cost</strong>
+    <p style="margin:6px 0 0">Better models improve retrieval at increased cost and latency. The embedding layer is provider-agnostic so teams can select models matching budget and SLA goals.</p>
+  </div>
+</div>
 
 Notes
 
-- Keep large generated data out of commits. Use `data/` and `qdrant_data/` for local artifacts only.
-
-Configuration & environment variables
-
-- Check `requirements.txt` for runtime dependencies.
-- Typical environment variables to set (examples — review code for exact variable names):
-  - `OPENROUTER_API_KEY` or other LLM provider key
-  - `QDRANT_URL` / `QDRANT_API_KEY` when using remote Qdrant
-  - Any provider-specific model or endpoint configuration under `llm/`
-
-Testing and evaluation
-
-- Unit tests are in `tests/`. CI should run `pytest` and optionally build a small qdrant instance in Docker for integration tests.
-- Evaluation utilities and scripts are under `evaluation/` (e.g., `ragas_eval.py`, `build_eval_data.py`). Use these to measure retrieval and generation quality.
-
-Extending the system
-
-- To add a new document source: implement a crawler in `crawler/` and add a parser in `crawler/parser.py`.
-- To add a new retriever or reranker: add modules under `retrieval/` and wire them into the query flow in `rag/query_engine.py`.
-- To swap LLM backends: update or extend `llm/openrouter_client.py` and `llm/generate.py` to support provider-specific SDKs.
-
-Security & privacy
-
-- Treat any uploaded or ingested documents as potentially sensitive. Sanitize or redact secrets before ingestion.
-- Do not commit API keys or secrets into the repository. Use environment variables or secret managers.
-
-Maintenance & troubleshooting
-
-- If embeddings fail or are inconsistent, re-run chunking and embedding for the affected dataset.
-- For Qdrant connectivity issues, verify the host/port and API keys, and consult `vectordb/qdrant_manager.py` for default behavior.
-
+- Keep large generated data out of commits. Use `data/` and `qdrant_data/` for local artifacts only (these paths are included in the project's `.gitignore`).
+- Configure LLM and vector DB credentials using environment variables; refer to `llm/` and `vectordb/` for client utilities.
 
 Contributing
 
