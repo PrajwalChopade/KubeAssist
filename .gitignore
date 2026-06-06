@@ -1,0 +1,76 @@
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment files
+.env
+.env.*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Type check / cache
+.mypy_cache/
+.pyre/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Data and generated artifacts (do not commit large artifacts)
+data/
+data/raw/
+data/processed/
+data/chunks/
+qdrant_data/
+generated_answers.json
+
+# Qdrant / vector DB snapshots and local state
+qdrant_data/
+
+# Secrets and keys
+secrets/
+*.pem
+*.key
+
+# Docker compose override (local configs)
+docker-compose.override.yml
+
+# Misc
+*.sqlite3
+*.db
+

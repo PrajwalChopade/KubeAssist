@@ -1,0 +1,18 @@
+[
+    {
+        "question": "What is a Deployment?",
+        "ground_truth": "A Deployment manages Pods and ReplicaSets and provides declarative updates."
+    },
+    {
+        "question": "What is HPA?",
+        "ground_truth": "Horizontal Pod Autoscaler automatically scales workloads based on metrics."
+    },
+    {
+        "question": "What is a Service?",
+        "ground_truth": "A Service exposes applications running on Pods."
+    },
+    {
+        "question": "What is Ingress?",
+        "ground_truth": "Ingress manages external HTTP and HTTPS access to services."
+    }
+]
